@@ -1,0 +1,31 @@
+services:
+  postgresql:
+    container_name: buladb
+    image: postgres:16.2-alpine
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+      - postgres:/data/postgres
+      - postgresconfig:/var/lib/postgresql/data
+    environment:
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - USER_ROLE=${USER_ROLE}
+      - USER_PASSWORD=${USER_PASSWORD}
+      - PGDATA=${USER_PASSWORD}
+    ports:
+      - ${DB_PORT:-5432}:5432
+    hostname: buladb
+    networks:
+      - bula-network
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  postgresconfig:
+
+networks:
+  bula-network:
+    driver: bridge
+    external: true

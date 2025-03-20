@@ -1,0 +1,23 @@
+services:
+  backend:
+    container_name: bula-backend
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: bula-backend
+    environment:
+      - API_PORT=${API_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+    ports:
+      - ${API_PORT:-3000}:3000
+    hostname: bula-backend
+    networks:
+      - bula-network
+    restart: unless-stopped
+    entrypoint: ["sh", "-c", "npm run start:prod"]
+
+networks:
+  bula-network:
+    driver: bridge
+    external: true
