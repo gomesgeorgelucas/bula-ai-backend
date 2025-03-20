@@ -7,11 +7,18 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 import { AppModule } from './app.module';
 
 const bootstrap = async () => {
+  const httpsOptions = {
+    key: fs.readFileSync('./secrets/cert.key'),
+    cert: fs.readFileSync('./secrets/cert.crt'),
+  };
+
   const app = await NestFactory.create(AppModule, {
     logger: ['log', 'error', 'warn'],
+    httpsOptions,
   });
 
   app.enableVersioning({
