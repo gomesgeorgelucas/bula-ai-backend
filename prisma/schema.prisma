@@ -6,3 +6,54 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum DocumentType {
+  MEDICAL_DOCUMENT @map("medical_document")
+  LEAFLET          @map("leaflet")
+}
+
+model Subjects {
+  id               String             @id @default(uuid()) @db.Uuid
+  firstName        String             @map("first_name") @db.VarChar(100)
+  lastName         String             @map("last_name") @db.VarChar(100)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deleted          Boolean            @default(false) @db.Boolean
+  medicalDocuments MedicalDocuments[] @relation("subject_medical_documents")
+
+  @@map("subjects")
+}
+
+model Documents {
+  id              String            @id @default(uuid()) @db.Uuid
+  name            String            @db.VarChar(100)
+  fileName        String            @map("file_name") @db.VarChar(100)
+  type            DocumentType
+  description     String?           @db.VarChar(500)
+  metadata        Json?             @default("{}") @map("metadata") @db.Json
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deleted         Boolean           @default(false) @db.Boolean
+  leaflet         Leaflets?
+  medicalDocument MedicalDocuments? @relation("medical_documents")
+
+  @@map("document")
+}
+
+model Leaflets {
+  id         String    @id @default(uuid()) @db.Uuid
+  document   Documents @relation(fields: [documentId], references: [id])
+  documentId String    @unique @map("document_id") @db.Uuid
+
+  @@map("leaflets")
+}
+
+model MedicalDocuments {
+  id         String    @id @default(uuid()) @db.Uuid
+  subject    Subjects  @relation("subject_medical_documents", fields: [subjectId], references: [id])
+  subjectId  String    @map("subject_id") @db.Uuid
+  document   Documents @relation("medical_documents", fields: [documentId], references: [id])
+  documentId String    @unique @map("document_id") @db.Uuid
+
+  @@map("medical_documents")
+}
